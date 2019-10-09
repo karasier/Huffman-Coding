@@ -1,7 +1,9 @@
 # coding: utf-8
 import re
 import collections
+import math
 
+# 入力文字列の条件を表示するメソッド
 def output_conditions():
     print("<<入力する文字列は次の条件を満たしてください。>>")
     print("1.使用する文字が小文字のアルファベットのみ")
@@ -40,6 +42,10 @@ class HuffmanTree:
     # 葉の生成
     for i in range(len(self.collections_array)):
       nodes.append(Node(self.occurrence_probability_array[i][0],self.occurrence_probability_array[i][1]))
+
+    if len(self.collections_array) == 1:
+      self.encode_dict[nodes[0].char] = "0"
+      return self.encode_dict
 
     temp = []
 
@@ -82,22 +88,24 @@ if __name__ == "__main__":
   print("[ハフマン符号の構成プログラム]\n")
   output_conditions()
   input_string = input("符号化したい文字列を入力\n>>")
-  print("\n")
   pattern = re.compile("[a-z]+") # 小文字のアルファベットの正規表現パターンを作成
   string_array = list(input_string) # 入力文字列を配列に変換
-  error_strings = [] # 制限を越えた文字列の配列
   string_collections = collections.Counter(string_array) # 文字の種類と出現回数を保持するオブジェクト
-  collections_array = string_collections.most_common() # 文字の種類と出現回数を配列に変換
+  collections_array = string_collections.most_common() # 文字の種類と出現回数を出現回数順に並べられた配列に変換
 
   # 入力文字列がパターンにマッチしない
   # 入力文字列の長さが40文字より大きい
   # 文字の種類が10より大きい
   # 上記のいずれかの条件を満たしたら再入力
   while((not pattern.fullmatch(input_string)) or len(input_string) > 40 or len(string_collections) > 10):
-    error_strings.append(input_string)
-    output_conditions()
+    if (not pattern.fullmatch(input_string)):
+      print("[入力可能文字はアルファベットの小文字のみです。]\n")
+    elif len(input_string) > 40:
+      print("[文字数が40文字を超えています。]\n")
+    else:
+      print("[文字の種類が10種類を超えています。]\n")
+
     input_string = input("再入力\n>>")
-    print("\n")
     string_array = list(input_string)
     string_collections = collections.Counter(string_array)
     collections_array = string_collections.most_common()
@@ -108,9 +116,20 @@ if __name__ == "__main__":
   codewords_array = list(codewords.items()) # 文字と符号語の組の辞書型を配列に変換
   result = [ [collections_array[i][0],collections_array[i][1],occurrence_probability_array[i][1],codewords_array[i][1]] for i in range(len(collections_array))] # 結果をまとめる
 
-  print("\n[入力した文字列]")
+  entropy = -sum([ result[i][2] * math.log2(result[i][2]) for i in range (len(collections_array))]) # エントロピーの計算
+  average_code_length = sum([ result[i][2] * len(result[i][3]) for i in range (len(collections_array))]) # 平均符号長の計算
+  efficiency = entropy/average_code_length # 効率の計算
+
+  print("\n----------------------------------------------------")
+  print("[入力した文字列]")
   print(input_string+"\n")
-  print("文字","文字数","出現確率","ハフマン符号")
+  print("[結果]")
+  print("| 文字 | 文字数 | 出現確率 | ハフマン符号")
   # 結果の出力
   for output in result:
-    print("|",output[0],"|",output[1],"|",output[2],"|",output[3])
+    print("|  ",output[0]," |   ",output[1],"  | ","{:.5f}".format(output[2]),"|",output[3])
+
+  print("\nエントロピー H(A) :",entropy)
+  print("平均符号長 L : ",average_code_length)
+  print("効率 η : ",efficiency)
+  print("----------------------------------------------------")
