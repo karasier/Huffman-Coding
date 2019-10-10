@@ -1,2 +1,2 @@
 # Huffman-Coding
-Huffman Coding by Python
+Huffman Coding by Python & Ruby
