@@ -121,7 +121,7 @@ if __FILE__ == $0
 
     print "\n再入力\n>>"
     input_string = gets.chomp
-    string_dict = count_element(input_string) # 文字の出現回数をカウント
+    string_dict = input_string.split("").each_with_object(Hash.new(0)){ |char,hash| hash[char] += 1 } # 文字の出現回数をカウント
     string_array = string_dict.sort_by{|key,value| [-value,key]} # 文字の出現回数を降順で並び替えて配列に変換
   end
 
