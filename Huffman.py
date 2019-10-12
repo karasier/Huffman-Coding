@@ -3,22 +3,22 @@ import re
 import collections
 import math
 
-# ハフマン木の葉と節点を示すクラス
+# ハフマン木のノード(葉または節点)を示すクラス
 class Node:
   # コンストラクタ
-  def __init__(self,char = None,occurrence_probability = None,left = None,right = None):
-    self.char = char
-    self.occurrence_probability = occurrence_probability
-    self.left = left
-    self.right = right
+  def __init__(self,char = None,occurrence_probability = None,up = None,down = None):
+    self.char = char # ノードの持つ文字
+    self.occurrence_probability = occurrence_probability # ノードの出現確率
+    self.up = up
+    self.down = down
 
 # ハフマン木を示すクラス
 class HuffmanTree:
   # コンストラクタ
   def __init__(self,input_string,collections_array):
-    self.encode_dict = {}
-    self.input_string = input_string
-    self.collections_array = collections_array
+    self.encode_dict = collections.OrderedDict() # 符号語を保持する辞書
+    self.input_string = input_string # 入力文字列
+    self.collections_array = collections_array # 文字と出現回数を保持する配列
 
   # 出現確率を計算するメソッド
   def compute_occurrence_probability(self):
@@ -41,7 +41,7 @@ class HuffmanTree:
       self.encode_dict[nodes[0].char] = "0"
       return self.encode_dict
 
-    # 葉の数が1になるまで繰り返し
+    # ノードの数が1になるまで繰り返し
     while len(nodes) > 1:
       # 出現確率の小さい方から2つ取り出して、節点を生成
       for i in range(2):
@@ -49,15 +49,16 @@ class HuffmanTree:
         temp.append(element)
         nodes.remove(element)
 
-      # 新しい葉を生成
-      new_node = Node(char=None, occurrence_probability=temp[0].occurrence_probability + temp[1].occurrence_probability,left=temp[1],right=temp[0])
-      # 探索していない葉の配列に格納
+      # 新しい節点を生成
+      new_node = Node(char=None, occurrence_probability=temp[0].occurrence_probability + temp[1].occurrence_probability,up=temp[1],down=temp[0])
+      # 探索していないノードの配列に格納
       nodes.append(new_node)
       temp = []
 
     # 符号語の割り当て
     self.allocate_codewords(nodes[0],"")
-    
+
+    print(self.encode_dict)
     # 符号語部分だけ取り出してreturn
     return list(map(lambda x: x[1], self.encode_dict.items()))
 
@@ -75,8 +76,8 @@ class HuffmanTree:
       return
 
     # 再帰呼び出し
-    self.allocate_codewords(node.left, code+"0")
-    self.allocate_codewords(node.right, code+"1")
+    self.allocate_codewords(node.up, code+"0")
+    self.allocate_codewords(node.down, code+"1")
 
 if __name__ == "__main__":
   print("[ハフマン符号の構成プログラム]\n")
@@ -109,16 +110,20 @@ if __name__ == "__main__":
   tree = HuffmanTree(input_string,collections_array) # ハフマン木をインスタンス生成
   codewords = tree.encode() # 入力文字列を符号化
 
+  # 平均情報量(エントロピー)の計算
   entropy = -sum([ tree.occurrence_probability_array[i] * math.log2(tree.occurrence_probability_array[i]) for i in range (len(collections_array))]) # エントロピーの計算
+  # 平均符号長の計算
   average_code_length = sum([ tree.occurrence_probability_array[i] * len(codewords[i]) for i in range (len(collections_array))]) # 平均符号長の計算
+  # 符号語の効率の計算
   efficiency = entropy/average_code_length # 効率の計算
 
+  # 結果の出力
   print("\n----------------------------------------------------")
   print("[入力した文字列]")
   print(input_string+"\n")
   print("[結果]")
   print("| 文字 | 文字数 | 出現確率 | ハフマン符号")
-  # 結果の出力
+
   for i in range(len(collections_array)):
     print("|  ",collections_array[i][0]," |   ",collections_array[i][1],"  | ","{:.5f}".format(tree.occurrence_probability_array[i]),"|",codewords[i])
 
