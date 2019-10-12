@@ -1,19 +1,23 @@
-# ハフマン木の葉と節点を示すクラス
+# coding: utf-8
+# Ruby 1.9以降なら正常に動作します(hashの順序による問題)
+require 'active_support'
+
+# ハフマン木のノード(葉または節点)を示すクラス
 class Node
-  def initialize(char = nil,occurrence_probability = nil,left = nil,right = nil)
-    @char = char # 文字
-    @occurrence_probability = occurrence_probability # 出現確率
-    @left = left
-    @right = right
+  def initialize(char = nil,occurrence_probability = nil,up = nil,down = nil)
+    @char = char # ノードの持つ文字
+    @occurrence_probability = occurrence_probability # ノードの出現確率
+    @up = up
+    @down = down
   end
 
-  attr_accessor :char,:occurrence_probability,:left,:right
+  attr_accessor :char,:occurrence_probability,:up,:down
 end
 
 # ハフマン木を示すクラス
 class HuffmanTree
   def initialize(input_string,string_array)
-    @encode_dict = Hash.new("") # 符号語を保持するハッシュ
+    @encode_dict = ActiveSupport::OrderedHash.new("") # 符号語を保持するハッシュ
     @input_string = input_string # 入力された文字列
     @string_array = string_array # 文字と出現回数を保持する配列
   end
@@ -78,20 +82,11 @@ class HuffmanTree
     end
 
     # 再帰呼び出し
-    allocate_codewords(node.left,codeword+"0")
-    allocate_codewords(node.right,codeword+"1")
+    allocate_codewords(node.up,codeword+"0")
+    allocate_codewords(node.down,codeword+"1")
   end
 
   attr_reader :occurrence_probability_array
-end
-
-# 文字の出現回数をカウントする関数
-def count_element(input_string)
-  hash = Hash.new(0) # ハッシュの初期値を0に設定
-  input_string.split("").each do |item|
-    hash[item] += 1 # 文字の出現回数を記録
-  end
-  return hash
 end
 
 if __FILE__ == $0
@@ -108,7 +103,7 @@ if __FILE__ == $0
     input_string = gets.chomp
   end
 
-  string_dict = count_element(input_string) # 文字の出現回数をカウント
+  string_dict = input_string.split("").each_with_object(Hash.new(0)){ |char,hash| hash[char] += 1 } # 文字の出現回数をカウント
   string_array = string_dict.sort_by{|key,value| [-value,key]} # 文字の出現回数を降順で並び替えて配列に変換
 
   # 入力文字列がパターンにマッチしない
@@ -135,10 +130,13 @@ if __FILE__ == $0
 
   # 符号化
   codewords = tree.encode()
-  # エントロピー、平均符号長、効率の計算
+
+  # 平均情報量(エントロピー)の計算
   entropy = tree.occurrence_probability_array.inject(0){ |sum,occurrence_probability| sum + -(occurrence_probability * Math.log2(occurrence_probability)) }
+  # 平均符号長の計算
   average_code_length = 0.0
   tree.occurrence_probability_array.each.with_index{ |occurrence_probability,i| average_code_length += occurrence_probability * codewords[i].size}
+  # 符号語の効率の計算
   efficiency = entropy/average_code_length
 
   # 結果の出力
@@ -147,7 +145,6 @@ if __FILE__ == $0
   puts input_string
   puts "\n[結果]"
   puts "| 文字 | 文字数 |  出現確率  | ハフマン符号"
-  # 結果の出力
 
   string_array.size.times do |i|
     puts "|  #{string_array[i][0]}   |    #{string_array[i][1]}   |  #{sprintf("%.6f",tree.occurrence_probability_array[i])}  | #{codewords[i]}"
