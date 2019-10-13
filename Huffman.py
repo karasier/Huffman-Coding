@@ -57,7 +57,7 @@ class HuffmanTree:
 
     # 符号語の割り当て
     self.allocate_codewords(nodes[0],"")
-    
+
     # 符号語部分だけ取り出してreturn
     return list(map(lambda x: x[1], self.encode_dict.items()))
 
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     string_collections = collections.Counter(list(input_string))
 
   collections_array = string_collections.most_common() # 文字の種類と出現回数を出現回数順に並べられた配列に変換
-
+  collections_array.sort(key = lambda x:(-x[1],x[0])) # 出現回数で降順、出現回数が同じ場合はアルファベット順にソート
   tree = HuffmanTree(input_string,collections_array) # ハフマン木をインスタンス生成
   codewords = tree.encode() # 入力文字列を符号化
 
