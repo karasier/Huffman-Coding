@@ -132,10 +132,9 @@ if __FILE__ == $0
   codewords = tree.encode()
 
   # 平均情報量(エントロピー)の計算
-  entropy = tree.occurrence_probability_array.inject(0){ |sum,occurrence_probability| sum + -(occurrence_probability * Math.log2(occurrence_probability)) }
+  entropy = - tree.occurrence_probability_array.each_with_object([]){ |occurrence_probability,array| array.append(occurrence_probability * Math.log2(occurrence_probability)) }.sum
   # 平均符号長の計算
-  average_code_length = 0.0
-  tree.occurrence_probability_array.each.with_index{ |occurrence_probability,i| average_code_length += occurrence_probability * codewords[i].size}
+  average_code_length = tree.occurrence_probability_array.each_with_object([]).with_index{ |(occurrence_probability,array),i| array.append(occurrence_probability * codewords[i].size) }.sum
   # 符号語の効率の計算
   efficiency = entropy/average_code_length
 

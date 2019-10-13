@@ -57,8 +57,7 @@ class HuffmanTree:
 
     # 符号語の割り当て
     self.allocate_codewords(nodes[0],"")
-
-    print(self.encode_dict)
+    
     # 符号語部分だけ取り出してreturn
     return list(map(lambda x: x[1], self.encode_dict.items()))
 
