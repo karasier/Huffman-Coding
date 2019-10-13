@@ -1,5 +1,4 @@
 # coding: utf-8
-# Ruby 1.9以降なら正常に動作します(hashの順序による問題)
 require 'active_support'
 
 # ハフマン木のノード(葉または節点)を示すクラス
