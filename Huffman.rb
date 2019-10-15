@@ -49,7 +49,7 @@ class HuffmanTree
     while nodes.size > 1 do
       # 出現確率の小さい方から2つ取り出して、節点を生成
       2.times do |i|
-        element = nodes[-1]
+        element = nodes.min_by{ |node| node.occurrence_probability }
         temp.push(element)
         nodes.delete(element)
       end
@@ -63,7 +63,7 @@ class HuffmanTree
     # 符号語の割り当て
     allocate_codewords(nodes[0],"")
 
-    return @encode_dict.to_a.transpose[1]
+    return @string_array.each_with_object([]){ |char,array| array.append(@encode_dict[char[0]]) }    
   end
 
   # 符号語を割り当てるメソッド
@@ -120,6 +120,10 @@ if __FILE__ == $0
 
     print "\n再入力\n>>"
     input_string = gets.chomp
+    while input_string == "" do
+      print "\n再入力\n>>"
+      input_string = gets.chomp
+    end
     string_dict = input_string.split("").each_with_object(Hash.new(0)){ |char,hash| hash[char] += 1 } # 文字の出現回数をカウント
     string_array = string_dict.sort_by{|key,value| [-value,key]} # 文字の出現回数を降順で並び替えて配列に変換
   end

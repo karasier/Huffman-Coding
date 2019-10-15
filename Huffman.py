@@ -43,9 +43,10 @@ class HuffmanTree:
 
     # ノードの数が1になるまで繰り返し
     while len(nodes) > 1:
+      index = []
       # 出現確率の小さい方から2つ取り出して、節点を生成
       for i in range(2):
-        element = nodes[-1]
+        element = min(nodes,key = lambda x:x.occurrence_probability)                
         temp.append(element)
         nodes.remove(element)
 
@@ -59,7 +60,7 @@ class HuffmanTree:
     self.allocate_codewords(nodes[0],"")
 
     # 符号語部分だけ取り出してreturn
-    return list(map(lambda x: x[1], self.encode_dict.items()))
+    return [ self.encode_dict[char[0]] for char in self.collections_array ]
 
 
   # 符号語を割り当てるメソッド
