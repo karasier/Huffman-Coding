@@ -43,13 +43,11 @@ class HuffmanTree:
 
     # ノードの数が1になるまで繰り返し
     while len(nodes) > 1:
-      index = []
       # 出現確率の小さい方から2つ取り出して、節点を生成
       for i in range(2):
-        element = min(nodes,key = lambda x:x.occurrence_probability)                
+        element = min(nodes,key = lambda x:x.occurrence_probability)
         temp.append(element)
         nodes.remove(element)
-
       # 新しい節点を生成
       new_node = Node(char=None, occurrence_probability=temp[0].occurrence_probability + temp[1].occurrence_probability,up=temp[1],down=temp[0])
       # 探索していないノードの配列に格納
